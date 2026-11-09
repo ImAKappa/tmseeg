@@ -1,0 +1,8 @@
+# R environment
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Project
+data/
