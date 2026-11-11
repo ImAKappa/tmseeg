@@ -17,6 +17,9 @@ print(filepath)
 tmseeg <- load_mat(filepath) 
 cat("Loaded dataset with fields:", paste(names(tmseeg), collapse = ","), "\n")
 
+# = Preprocessing
+# TODO(2026-11-11) Baseline correction (de-meaning)
+
 # = Visualization
 
 # Downsample to reduce visual clutter
@@ -39,3 +42,11 @@ class_means <- mean_trials_by_class(tmseeg)
 print(dim(class_means$data))
 
 # Plot 'eigen-time-series'
+
+# = Classification
+
+# == Feature engineering
+
+# --- Global Mean Field Amplitude ... verify that I get a plot like https://www.fieldtriptoolbox.org/assets/img/tutorial/tms-eeg/figure23.png
+
+# == Calculate cross-validation

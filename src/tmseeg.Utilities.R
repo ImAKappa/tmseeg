@@ -95,6 +95,7 @@ filter_trialseq <- function(eeg, i) {
   eeg$data <- eeg$data[,,trial_mask]
   
   # Update labels to match data
+  # TODO(2026-11-11) What if no i in trialseq? Throw error
   eeg$trialseq <- eeg$trialseq[trial_mask]
   eeg$trialinfo <- eeg$trialinfo[trial_mask]
   return(eeg)
@@ -111,6 +112,7 @@ filter_trialinfo <- function(eeg, info) {
   eeg$data <- eeg$data[,,trial_mask]
   
   # Update labels to match data
+  # TODO(2026-11-11) What if no info in trialinfo? Throw error
   eeg$trialinfo <- eeg$trialinfo[trial_mask]
   eeg$trialseq <- eeg$trialseq[trial_mask]
   return(eeg)
