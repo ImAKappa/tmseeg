@@ -31,7 +31,7 @@ load_mat <- function(filepath) {
   # Repackage relevant data into R data structure
   data = list(
     label = file_h5[["label"]]$read(), 
-    trial = file_h5[["trial"]]$read(),
+    data = file_h5[["data"]]$read(),
     time = file_h5[["time"]]$read(),
     trialinfo = file_h5[["trialinfo"]]$read(),
     trialseq = file_h5[["trialseq"]]$read()

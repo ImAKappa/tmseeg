@@ -18,16 +18,14 @@ tmseeg <- load_mat(filepath)
 
 # Select window
 tmseeg <- filter_time(tmseeg, c(-0.1, 0.6))
-print(dim(tmseeg$trial))
+print(dim(tmseeg$data))
 
 # Select trial
 tmseeg <- filter_trialseq(tmseeg, 1)
-print(dim(tmseeg$trial))
-
-
+print(dim(tmseeg$data))
 
 # Plot trial
 fig <- png(filename = file.path(fig_dir, "trials.png"), width = 800, height = 600, res = 100)
-matplot(t(tmseeg$trial), )
+matplot(t(tmseeg$data), )
 
 # Plot 'eigen-time-series'
