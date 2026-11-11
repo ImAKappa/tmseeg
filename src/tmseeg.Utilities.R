@@ -5,6 +5,8 @@
 
 library("hdf5r") # For opening MAT-Files
 
+### ARGUMENT PARSING
+
 parse_args <- function() {
   help <- "Usage: Rscript tmseeg.Analysis.R [MAT-FILE PATH]"
 
@@ -17,6 +19,8 @@ parse_args <- function() {
   filepath <- args[1]
   return(filepath)
 }
+
+### EEG DATA STRUCTURE
 
 load_mat <- function(filepath) {
   stopifnot(
@@ -45,16 +49,16 @@ load_mat <- function(filepath) {
 
 is_valid_eeg <- function(eeg) {
   # Check list names
-  required_names <- c("label", "trial", "time", "trialinfo", "trialseq")
+  required_names <- c("label", "data", "time", "trialinfo", "trialseq")
   if (!all(required_names %in% names(eeg))) {
     cat("Missing names: ", paste(setdiff(required_names, names(eeg)), collapse = ", "), "\n")
     return(FALSE)
   }
   
   # --- Check field properties
-  # Trial
-  if (length(dim(eeg$trial)) != 3) {
-    cat("Expected 3 dimensions (channel x time x trial), got", dim(eeg$trial), "\n")
+  # Data
+  if (length(dim(eeg$data)) != 3) {
+    cat("Expected data to have 3 dimensions (channel x time x trial), got", dim(eeg$data), "\n")
     return(FALSE)
   }
 
@@ -72,7 +76,7 @@ filter_time <- function(eeg, window) {
   
   # Slice data
   time_mask <- -0.1 < eeg$time & eeg$time < 0.6
-  eeg$trial <- eeg$trial[,time_mask,]
+  eeg$data <- eeg$data[,time_mask,]
   
   # Update labels to match data
   eeg$time <- eeg$time[time_mask]
@@ -88,24 +92,84 @@ filter_trialseq <- function(eeg, i) {
 
   # Slice data
   trial_mask <- eeg$trialseq == i
-  eeg$trial <- eeg$trial[,,trial_mask]
+  eeg$data <- eeg$data[,,trial_mask]
   
   # Update labels to match data
-  eeg$trialinfo <- eeg$trialseq[trial_mask]
+  eeg$trialseq <- eeg$trialseq[trial_mask]
+  eeg$trialinfo <- eeg$trialinfo[trial_mask]
   return(eeg)
 }
 
 filter_trialinfo <- function(eeg, info) {
   stopifnot(
     "Expected valid eeg data structure" = is_valid_eeg(eeg),
-    "Expected info to be numeric" = is.numeric(info),
+    "Expected info to be numeric" = is.numeric(info)
   )
 
   # Slice data
   trial_mask <- eeg$trialinfo == info
-  eeg$trial <- eeg$trial[,,trial_mask]
+  eeg$data <- eeg$data[,,trial_mask]
   
   # Update labels to match data
-  eeg$trialinfo <- eeg$trialseq[trial_mask]
+  eeg$trialinfo <- eeg$trialinfo[trial_mask]
+  eeg$trialseq <- eeg$trialseq[trial_mask]
   return(eeg)
+}
+
+### EEG PREPROCESSING
+
+library("gsignal")
+
+downsample <- function(eeg, fs_new) {
+  stopifnot(
+    "Expected valid eeg data structure" = is_valid_eeg(eeg)
+  )
+
+  # Compute decimation factor (assuming constant sampling rate)
+  fs_old <- 1 / (eeg$time[2] - eeg$time[1])
+  factor <- fs_old / fs_new
+
+  stopifnot(
+    "Old sampling frequency (fs_old) must be integer multiple of new sampling frequency (fs_new)" = abs(factor - round(factor)) < 1e-8 & factor > 1
+  )
+  factor <- as.integer(round(factor))
+  cat("Downsampling from ", fs_old, " Hz to ", fs_new, " Hz (factor=", factor, ")\n", sep = "")
+
+  # Reshape data to resample the timepoints for every channel & trial at the same time
+  # dims: [channels (1) x time (2) x trials (3)]
+  dims <- dim(eeg$data)
+  mat_2d <- matrix(aperm(eeg$data, c(2, 1, 3)), nrow = dims[2])
+  mat_resampled <- gsignal::resample(mat_2d, p = 1, q = factor)
+  arr_3d <- array(mat_resampled, dim = c(nrow(mat_resampled), dims[1], dims[3]))
+  eeg$data <- aperm(arr_3d, c(2, 1, 3))
+  
+  # Update time labels to match downsampled signals
+  eeg$time <- seq(eeg$time[1], by = 1/fs_new, length.out = dim(eeg$data)[2])
+  
+  return(eeg)
+}
+
+### Analysis
+
+mean_trials_by_class <- function(eeg) {
+  stopifnot(
+    "Expected valid eeg data structure" = is_valid_eeg(eeg)
+  )
+  class_means <- apply(eeg$data, MARGIN = c(1, 2), FUN = function(x) tapply(x, eeg$trialinfo, mean))
+  class_means <- aperm(class_means, c(2, 3, 1))
+
+  eeg$data <- class_means
+  eeg$trialinfo <- unique(eeg$trialinfo)
+  eeg$trialseq <- 1:length(unique(eeg$trialinfo))
+  return(eeg)
+}
+
+### VISUALIZATION
+library("latex2exp")
+
+plot_trial <- function(eeg) {
+  cmap <- hcl.colors(length(eeg$label), palette = "Viridis", alpha = 0.4)
+  matplot(x = eeg$time, y = t(eeg$data), type = "l", lty = 1,
+    xlab = "Time (s)", ylab = latex2exp::TeX("Amplitude ($\\mu$V)"),
+    col = cmap)
 }
