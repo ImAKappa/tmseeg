@@ -38,8 +38,20 @@ dev.off()
 
 # == Mean trial per class
 
+classes <- list(relax = 1, contract = 3)
+
 class_means <- mean_trials_by_class(tmseeg)
 print(dim(class_means$data))
+
+png(filename = file.path(fig_dir, "relax_avg.png"), width = 800, height = 600, res = 100)
+plot_trial(filter_trialinfo(class_means, classes$relax))
+title(paste("Mean of 'Relax' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$relax]), ")"))
+dev.off()
+
+png(filename = file.path(fig_dir, "contract_avg.png"), width = 800, height = 600, res = 100)
+plot_trial(filter_trialinfo(class_means, classes$contract))
+title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
+dev.off()
 
 # Plot 'eigen-time-series'
 
