@@ -3,8 +3,8 @@
 %   to be more convenient to load into an R environment
 
 %% Read data
-
-data_dir = fullfile("tmseeg", "data");
+addpath("src")
+data_dir = fullfile("data");
 addpath(data_dir);
 dataset = load("data_tms_clean.mat");
 
@@ -30,11 +30,11 @@ dataset.time = dataset.time{1};
 dataset.label = int32(str2double(string(dataset.label)));
 
 % Concatenate trials into multidimensional array
-dataset.trial = cat(3, dataset.trial{:});
+dataset.data = cat(3, dataset.trial{:});
+dataset = rmfield(dataset, "trial");
 
-%% Add information
-
-dataset.trialseq = int32(1:size(dataset.trial, 3));
+% Add information
+dataset.trialseq = int32(1:size(dataset.data, 3));
 
 disp("After:")
 disp(dataset)
