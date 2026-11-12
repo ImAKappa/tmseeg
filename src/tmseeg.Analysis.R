@@ -18,12 +18,13 @@ tmseeg <- load_mat(filepath)
 cat("Loaded dataset with fields:", paste(names(tmseeg), collapse = ","), "\n")
 
 # = Preprocessing
-# TODO(2026-11-11) Baseline correction (de-meaning)
+# TODO(2026-11-11) Baseline correction (de-meaning) based on [-0.05, -0.001]
+# TODO(2026-11-12) Lowpass filter of 35Hz
+tmseeg <- downsample(tmseeg, 250)
 
 # = Visualization
 
 # Downsample to reduce visual clutter
-tmseeg <- downsample(tmseeg, 250)
 
 # Select window
 tmseeg <- filter_time(tmseeg, c(-0.1, 0.6))
@@ -51,6 +52,12 @@ dev.off()
 png(filename = file.path(fig_dir, "contract_avg.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialinfo(class_means, classes$contract))
 title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
+dev.off()
+
+# Average of each class
+png(filename = file.path(fig_dir, "class_avg.png"), width = 800, height = 600, res = 100)
+contract_avg <- filter_trialinfo(class_means, classes$contract)
+contract_avg <- apply(contract_avg$data, MARGIN = 3, FUN = mean)
 dev.off()
 
 # Plot 'eigen-time-series'

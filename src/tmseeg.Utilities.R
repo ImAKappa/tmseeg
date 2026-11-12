@@ -166,6 +166,17 @@ mean_trials_by_class <- function(eeg) {
   return(eeg)
 }
 
+#' Global Mean Field Power
+#' The standard deviation of amplitude over all channels, for every time point 
+gmfp <- function(eeg) {
+  stopifnot(
+    "Expected valid eeg data structure" = is_valid_eeg(eeg)
+  )
+  K <- length(eeg$label)
+  result <- apply(eeg$data, MARGIN = c(1, 3), FUN = sd)
+  return(result)
+}
+
 ### VISUALIZATION
 library("latex2exp")
 
