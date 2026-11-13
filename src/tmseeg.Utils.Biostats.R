@@ -3,7 +3,7 @@
 # Description:
 #   Utilities for the four analyses for the assignment
 
-analysis_1_polynomial <- function(eeg) {
+analysis_1_polynomial_fitting <- function(eeg) {
   cat("Analysis 1 [Polynomial fitting]: Finding polynomial approximations to TEP\n")
 
   # Focus only on TMS-Evoked Potential (the brain response to the single magnetic pulse)

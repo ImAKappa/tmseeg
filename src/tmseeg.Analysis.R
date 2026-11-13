@@ -51,20 +51,6 @@ plot_class_means(tmseeg, class_names)
 dev.off()
 cat("Plotted preprocessed data\n")
 
-# == Single trial
-trial_i <- 1
-png(filename = file.path(fig_dir, "trial.png"), width = 800, height = 600, res = 100)
-plot_trial(filter_trialseq(tmseeg, trial_i))
-title(paste("Trial", trial_i))
-dev.off()
+# = Analyses
 
-# Plot 'eigen-time-series'
-
-# = Classification
-
-
-# == Feature engineering
-
-# --- Global Mean Field Amplitude ... verify that I get a plot like https://www.fieldtriptoolbox.org/assets/img/tutorial/tms-eeg/figure23.png
-
-# == Calculate cross-validation
+analysis_1_polynomial_fitting(tmseeg)
