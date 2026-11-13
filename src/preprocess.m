@@ -1,6 +1,7 @@
 %% Preprocess
 % Preprocesses TMS-EEG data from https://download.fieldtriptoolbox.org/tutorial/tms/sp/
-%   to be more convenient to load into an R environment
+%   to be more convenient to load into an R environment and
+%   more useful outside of the specific structure perscribed by the Field-Trip MATLAB toolbox
 
 %% Read data
 addpath("src")

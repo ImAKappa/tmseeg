@@ -5,7 +5,7 @@
 #   Based on the tutorial: https://www.fieldtriptoolbox.org/tutorial/tms/tms-eeg/
 
 library("tidyverse")
-source("src/tmseeg.Utilities.R")
+source("src/tmseeg.Utils.R")
 
 # = Set paths
 fig_dir <- "figures"
@@ -27,47 +27,46 @@ classes <- list(relax = 1, contract = 3)
 class_means <- mean_trials_by_class(tmseeg)
 print(dim(class_means$data))
 
-png(filename = file.path(fig_dir, "raw_relax_avg.png"), width = 800, height = 600, res = 100)
+png(filename = file.path(fig_dir, "relax_avg_raw.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialinfo(class_means, classes$relax))
 title(paste("Mean of 'Relax' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$relax]), ")"))
 dev.off()
 
-png(filename = file.path(fig_dir, "raw_contract_avg.png"), width = 800, height = 600, res = 100)
+png(filename = file.path(fig_dir, "contract_avg_raw.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialinfo(class_means, classes$contract))
 title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
 dev.off()
 
-# = Preprocess
+# = Preprocess (I)
 # TODO(2026-11-11) Baseline correction (de-meaning) based on [-0.05, -0.001]
+tmseeg <- correct_baseline(tmseeg, c(-0.05, -0.001))
 # TODO(2026-11-12) Lowpass filter of 35Hz
-tmseeg <- downsample(tmseeg, 250)
+
 
 # = Visualize Preprocessed
-
-# Downsample to reduce visual clutter
-
-# Select window
-tmseeg <- filter_time(tmseeg, c(-0.1, 0.6))
-
-# == Mean trial per class
 
 classes <- list(relax = 1, contract = 3)
 
 class_means <- mean_trials_by_class(tmseeg)
 print(dim(class_means$data))
 
-png(filename = file.path(fig_dir, "relax_avg.png"), width = 800, height = 600, res = 100)
+png(filename = file.path(fig_dir, "relax_avg_preproc.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialinfo(class_means, classes$relax))
 title(paste("Mean of 'Relax' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$relax]), ")"))
 dev.off()
 
-png(filename = file.path(fig_dir, "contract_avg.png"), width = 800, height = 600, res = 100)
+png(filename = file.path(fig_dir, "contract_avg_preproc.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialinfo(class_means, classes$contract))
 title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
 dev.off()
 
-# == Single trial
+# Preprocessing (I)
+tmseeg <- downsample(tmseeg, 250)
 
+# Select window
+tmseeg <- filter_time(tmseeg, c(-0.1, 0.6))
+
+# == Single trial
 trial_i <- 1
 png(filename = file.path(fig_dir, "trial.png"), width = 800, height = 600, res = 100)
 plot_trial(filter_trialseq(tmseeg, trial_i))
