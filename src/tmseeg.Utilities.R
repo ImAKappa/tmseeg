@@ -162,7 +162,8 @@ correct_baseline <- function(eeg, window) {
   baseline_mean <- apply(eeg$data[,window[1] <= eeg$time & eeg$time <= window[2],], MARGIN = 3, mean)
 
   # Subtract mean from data
-  eeg$data = eeg$data - baseline_mean
+  eeg$data <- eeg$data - baseline_mean
+  return(eeg)
 }
 
 ### Analysis
