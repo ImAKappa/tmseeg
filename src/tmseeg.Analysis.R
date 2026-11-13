@@ -13,58 +13,43 @@ fig_dir <- "figures"
 # = Parse CLI arguments
 # filepath <- parse_args()
 filepath <- "data/data_tms_clean_for_R.mat"
-print(filepath)
 
 # = Load data
-
-tmseeg <- load_mat(filepath) 
-cat("Loaded dataset with fields:", paste(names(tmseeg), collapse = ","), "\n")
+tmseeg <- load_mat(filepath)
+cat("Loaded TMS-EEG dataset with fields:", paste(names(tmseeg), collapse = ", "), "\n")
 
 # = Visualize Raw
+class_names <- c("Relax", "Contract")
 
-classes <- list(relax = 1, contract = 3)
-
-class_means <- mean_trials_by_class(tmseeg)
-print(dim(class_means$data))
-
-png(filename = file.path(fig_dir, "relax_avg_raw.png"), width = 800, height = 600, res = 100)
-plot_trial(filter_trialinfo(class_means, classes$relax))
-title(paste("Mean of 'Relax' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$relax]), ")"))
+png(filename = file.path(fig_dir, "class_means_raw.png"), width = 800, height = 600, res = 100)
+plot_class_means(tmseeg, class_names)
 dev.off()
-
-png(filename = file.path(fig_dir, "contract_avg_raw.png"), width = 800, height = 600, res = 100)
-plot_trial(filter_trialinfo(class_means, classes$contract))
-title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
-dev.off()
+cat("Plotted raw data\n")
 
 # = Preprocess (I)
-# TODO(2026-11-11) Baseline correction (de-meaning) based on [-0.05, -0.001]
-tmseeg <- correct_baseline(tmseeg, c(-0.05, -0.001))
-# TODO(2026-11-12) Lowpass filter of 35Hz
+tmseeg <- correct_baseline(tmseeg, c(-0.1, -0.001))
+tmseeg <- filter_lowpass(tmseeg, 35)
+cat("Applied low pass filter\n")
 
-
-# = Visualize Preprocessed
-
-classes <- list(relax = 1, contract = 3)
-
-class_means <- mean_trials_by_class(tmseeg)
-print(dim(class_means$data))
-
-png(filename = file.path(fig_dir, "relax_avg_preproc.png"), width = 800, height = 600, res = 100)
-plot_trial(filter_trialinfo(class_means, classes$relax))
-title(paste("Mean of 'Relax' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$relax]), ")"))
+# = Visualize Preprocessed (I)
+png(filename = file.path(fig_dir, "class_means_preproc.png"), width = 800, height = 600, res = 100)
+plot_class_means(tmseeg, class_names)
 dev.off()
+cat("Plotted preprocessed data\n")
 
-png(filename = file.path(fig_dir, "contract_avg_preproc.png"), width = 800, height = 600, res = 100)
-plot_trial(filter_trialinfo(class_means, classes$contract))
-title(paste("Mean of 'Contract' condition (n=", length(tmseeg$trialinfo[tmseeg$trialinfo == classes$contract]), ")"))
-dev.off()
-
-# Preprocessing (I)
+# = Preprocessing (II)
+# Reduce dataset size
 tmseeg <- downsample(tmseeg, 250)
-
-# Select window
+cat("Downsampled data\n")
+# Select time window of interest
 tmseeg <- filter_time(tmseeg, c(-0.1, 0.6))
+cat("Filtered time\n")
+
+# = Visualized Preprocessed (II)
+png(filename = file.path(fig_dir, "class_means_250Hz.png"), width = 800, height = 600, res = 100)
+plot_class_means(tmseeg, class_names)
+dev.off()
+cat("Plotted preprocessed data\n")
 
 # == Single trial
 trial_i <- 1
@@ -73,15 +58,10 @@ plot_trial(filter_trialseq(tmseeg, trial_i))
 title(paste("Trial", trial_i))
 dev.off()
 
-# Average of each class
-# png(filename = file.path(fig_dir, "class_avg.png"), width = 800, height = 600, res = 100)
-# contract_avg <- filter_trialinfo(class_means, classes$contract)
-# contract_avg <- apply(contract_avg$data, MARGIN = 3, FUN = mean)
-# dev.off()
-
 # Plot 'eigen-time-series'
 
 # = Classification
+
 
 # == Feature engineering
 

@@ -16,6 +16,14 @@ mean_trials_by_class <- function(eeg) {
   return(eeg)
 }
 
+mean_class_diff <- function(eeg) {
+  class_diff <- mean_trials_by_class(eeg)
+  class_diff$data <- class_diff$data[,,1] - class_diff$data[,,2]
+  class_diff$trialinfo <- NA
+  class_diff$trialseq <- NA
+  return(class_diff)
+}
+
 #' Global Mean Field Power
 #' The standard deviation of amplitude over all channels, for every time point 
 gmfp <- function(eeg) {

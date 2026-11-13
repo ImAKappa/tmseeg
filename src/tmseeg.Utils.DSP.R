@@ -19,7 +19,6 @@ downsample <- function(eeg, fs_new) {
     "Old sampling frequency (fs_old) must be integer multiple of new sampling frequency (fs_new)" = abs(factor - round(factor)) < 1e-8 & factor > 1
   )
   factor <- as.integer(round(factor))
-  cat("Downsampling from ", fs_old, " Hz to ", fs_new, " Hz (factor=", factor, ")\n", sep = "")
 
   # Reshape data to resample the timepoints for every channel & trial at the same time
   # dims: [channels (1) x time (2) x trials (3)]
@@ -56,5 +55,15 @@ correct_baseline <- function(eeg, window) {
 
   # Permute data back to [channel x time x trial]
   eeg$data <- aperm(demeaned_data, c(1, 3, 2))
+  return(eeg)
+}
+
+filter_lowpass <- function(eeg, cutoff) {
+  fs <- 1 / median(diff(eeg$time))
+  order <- 4
+  nyquist <- fs / 2
+  bf <- gsignal::butter(order, cutoff / nyquist, type = "low")
+  eeg_filtered <- apply(eeg$data, MARGIN = c(1, 3), FUN = function(x) gsignal::filtfilt(bf, x))
+  eeg$data <- aperm(eeg_filtered, perm = c(2, 1, 3))
   return(eeg)
 }
