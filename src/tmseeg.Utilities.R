@@ -75,7 +75,7 @@ filter_time <- function(eeg, window) {
   )
   
   # Slice data
-  time_mask <- -0.1 < eeg$time & eeg$time < 0.6
+  time_mask <- -0.1 <= eeg$time & eeg$time <= 0.6
   eeg$data <- eeg$data[,time_mask,]
   
   # Update labels to match data
@@ -149,6 +149,20 @@ downsample <- function(eeg, fs_new) {
   eeg$time <- seq(eeg$time[1], by = 1/fs_new, length.out = dim(eeg$data)[2])
   
   return(eeg)
+}
+
+correct_baseline <- function(eeg, window) {
+  stopifnot(
+    "Expected valid eeg data structure" = is_valid_eeg(eeg),
+    "Window should be an interval" = length(window) == 2,
+    "Window should be monotonic" = window[2] > window[1]
+  )
+
+  # Calculate the baseline mean of all channels
+  baseline_mean <- apply(eeg$data[,window[1] <= eeg$time & eeg$time <= window[2],], MARGIN = 3, mean)
+
+  # Subtract mean from data
+  eeg$data = eeg$data - baseline_mean
 }
 
 ### Analysis
