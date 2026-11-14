@@ -36,6 +36,8 @@ gmfp <- function(eeg) {
 }
 
 library("corpcor")
+library("CovTools")
+library("Riemann")
 
 cov_by_trial <- function(eeg) {
   n_trials <- dim(eeg$data)[3]
@@ -53,5 +55,22 @@ cov_by_trial <- function(eeg) {
     cov_mat <- corpcor::cov.shrink(trial_i, verbose = FALSE)
     cov_list[[i]] <- as.matrix(cov_mat)
   }
-  return(cov_list)
+  return(simplify2array(cov_list))
+}
+
+riemann_perm_test <- function(covs_A, covs_B, nperm = 1000, seed = 42) {
+  set.seed(seed)
+
+  n1 <- dim(covs_A)[3]
+  n2 <- dim(covs_B)[3]
+  all_covs <- c(covs_A, covs_B)
+  total_trials <- n1 + n2
+
+  # Observed mean and distance
+  # We calculate these with a Riemannian formula instead of Euclidean formulas
+  #   because the geometry of covariance matrices is actually not quite flat!
+  mean_A <- CovTools::CovMean(covs_A, method = "LERM")
+  mean_B <- CovTools::CovMean(covs_B, method = "LERM")
+
+  mean_A <- riem.mean(covs_A, method)
 }

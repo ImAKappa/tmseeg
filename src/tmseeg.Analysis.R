@@ -10,8 +10,9 @@ source("src/tmseeg.Utils.R")
 # Load data
 # filepath <- parse_args()
 filepath <- file.path("data", "tmseeg.rds")
-tmseeg <- readRDS(filepath)
-cat("Loaded TMS-EEG dataset with fields:", paste(names(tmseeg), collapse = ", "), "\n")
+eeg <- readRDS(filepath)
+cat("Loaded TMS-EEG dataset with fields:", paste(names(eeg), collapse = ", "), "\n")
 
 # = Analyses
-analysis_1_polynomial_fitting(tmseeg)
+analysis_1_polynomial_fitting(eeg)
+

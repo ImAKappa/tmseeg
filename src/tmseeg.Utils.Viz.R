@@ -11,7 +11,7 @@ plot_class_means <- function(eeg, class_names) {
   classes <- unique(eeg$trialinfo)
 
   # Calculate class means
-  class_means <- mean_trials_by_class(tmseeg)
+  class_means <- mean_trials_by_class(eeg)
 
   # Plot each class
   par(mfrow = c(2, 1))
@@ -31,7 +31,7 @@ plot_class_differences <- function(eeg, class_names) {
   classes <- unique(eeg$trialinfo)
 
   # Calculate class means
-  class_means <- mean_trials_by_class(tmseeg)
+  class_means <- mean_trials_by_class(eeg)
 
   class_diff <- class_means
   class_diff$data <- class_means$data[,,1] - class_means$data[,,2]

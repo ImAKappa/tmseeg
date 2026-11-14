@@ -53,22 +53,48 @@ analysis_1_polynomial_fitting <- function(eeg) {
   #    Also, the AIC decreases monotically with polynomial order, which is also interesting
 }
 
+analysis_2_estimating_covariance <- function(eeg) {
+  cat("Analysis 2 []: Estimating the covariance")
+}
+
 analysis_2_cov_diff_test <- function(eeg) {
   cat("Analysis 2 [Hypothesis testing]: Are the covariance matrices the same between the Relax and Contract conditions?\n")
 
-  classes <- list(relax = 1, contract = 2)
+  classes <- list(relax = 1, contract = 3)
 
   # Compute covariance matrices
   covs_relaxed <- cov_by_trial(filter_trialinfo(eeg, classes$relax))
   covs_contract <- cov_by_trial(filter_trialinfo(eeg, classes$contract))
+
+  method <- "log_euclidean"
+  mean_relaxed <- riem.mean(wrap.spd(covs_relaxed), geometry = method)
+  mean_contract <- riem.mean(wrap.spd(covs_contract), geometry = method)
+  cov_dist <- riem.pdist(wrap.spd(list(mean_relaxed$mean, mean_contract$mean)))
+  print(cov_dist)
 
   # Perform permutation test to assess if the covariance of each class comes from the null distribution
 }
 
 analysis_3_gmfp_feature_selection <- function(eeg) {
   cat("Analysis 3 [Feature selection]: Which time points are useful for differentiating Relax vs Contract\n")
+
+  # Select focus of the analysis
+  coi <- 17
+
+  # Compute means
+  classes <- list(relax = 1, contract = 3)
+  class_means <- trial_means_by_class(eeg)
+
+  # Compute GMFP
+  relax <- gmfp(filter_trialinfo(class_means, classes$relax))
+  contract <- gmfp(filter_trialinfo(class_means, classes$contract))
+
+  c(relax, contract)
+
 }
 
 analysis_4_classification <- function(eeg) {
   cat("Analysis 4 [Classification]: \n")
+
+  # Based on the feature selection analysis
 }
