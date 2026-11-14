@@ -34,3 +34,24 @@ gmfp <- function(eeg) {
   result <- apply(eeg$data, MARGIN = c(1, 3), FUN = sd)
   return(result)
 }
+
+library("corpcor")
+
+cov_by_trial <- function(eeg) {
+  n_trials <- dim(eeg$data)[3]
+  cov_list <- vector("list", n_trials)
+
+  for (i in 1:n_trials) {
+    # Reshapeing
+    trial_i <- eeg$data[,,i]
+    trial_i <- t(trial_i)
+
+    # De-meaning
+    trial_i <- scale(trial_i, center = TRUE, scale = FALSE)
+
+    # Shrink
+    cov_mat <- corpcor::cov.shrink(trial_i, verbose = FALSE)
+    cov_list[[i]] <- as.matrix(cov_mat)
+  }
+  return(cov_list)
+}

@@ -53,12 +53,16 @@ analysis_1_polynomial_fitting <- function(eeg) {
   #    Also, the AIC decreases monotically with polynomial order, which is also interesting
 }
 
-analysis_2_cov_diff_test <- function(A, B) {
+analysis_2_cov_diff_test <- function(eeg) {
   cat("Analysis 2 [Hypothesis testing]: Are the covariance matrices the same between the Relax and Contract conditions?\n")
 
-  library(corpcor)
+  classes <- list(relax = 1, contract = 2)
 
-  # Estimate the covariance matrices for each trial
+  # Compute covariance matrices
+  covs_relaxed <- cov_by_trial(filter_trialinfo(eeg, classes$relax))
+  covs_contract <- cov_by_trial(filter_trialinfo(eeg, classes$contract))
+
+  # Perform permutation test to assess if the covariance of each class comes from the null distribution
 }
 
 analysis_3_gmfp_feature_selection <- function(eeg) {
