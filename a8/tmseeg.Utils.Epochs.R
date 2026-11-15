@@ -25,7 +25,7 @@ is_valid_eeg <- function(eeg) {
 
 # === SLICING ===
 
-slice_time <- function(eeg, window) {
+slice.time <- function(eeg, window) {
   stopifnot(
     "Expected valid eeg data structure" = is_valid_eeg(eeg),
     "Expected window to be an interval" = length(window) == 2,
@@ -42,7 +42,7 @@ slice_time <- function(eeg, window) {
   return(eeg)
 }
 
-slice_trialseq <- function(eeg, i) {
+slice.trialseq <- function(eeg, i) {
   stopifnot(
     "Expected valid eeg data structure" = is_valid_eeg(eeg),
     "Expected i to be numeric" = is.numeric(i),
@@ -60,7 +60,7 @@ slice_trialseq <- function(eeg, i) {
   return(eeg)
 }
 
-slice_trialinfo <- function(eeg, info) {
+slice.trialinfo <- function(eeg, info) {
   stopifnot(
     "Expected valid eeg data structure" = is_valid_eeg(eeg),
     "Expected info to be numeric" = is.numeric(info)
@@ -79,7 +79,7 @@ slice_trialinfo <- function(eeg, info) {
 
 # == EPOCH SUMMARY ===
 
-timelock_avg_by_class <- function(eeg) {
+timelock.avg.by.class <- function(eeg) {
   stopifnot(
     "Expected valid eeg data structure" = is_valid_eeg(eeg)
   )
