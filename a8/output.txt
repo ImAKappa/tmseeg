@@ -1,0 +1,56 @@
+ubungu@ubungu:~/Learn/PhD/Courses/msc1090/tmseeg$ Rscript a8/tmseeg.Analysis.R data/tmseeg.rds
+Loaded TMS-EEG dataset with fields: label, data, time, trialinfo, trialseq 
+
+=== Analysis 1: Polynomial approximation of TMS-Evoked Potential ===
+Channel of Interest:  17 
+For condition 'relax', the TEP is best fit by a 26-degree polynomial
+For condition 'contract', the TEP is best fit by a 25-degree polynomial
+
+=== Analysis 2: Estimate distance between class mean covariance matrices ===
+Observed difference of sample mean covariance between 'relax' and 'contract' conditions:
+        Euclidean distance: 285.5954 
+        Riemannian distance (affine_invariant): 0.8741399
+        Riemannian distance (log_euclidean): 0.8810541
+
+== Analysis 3: Permutation test for group differences in covariance ===
+Generating null distribution ... done
+Null distribution via permutation test:
+   euclidean        riemannian    
+ Min.   : 83.34   Min.   :0.6172  
+ 1st Qu.:235.68   1st Qu.:0.6815  
+ Median :297.52   Median :0.7067  
+ Mean   :302.34   Mean   :0.7184  
+ 3rd Qu.:364.67   3rd Qu.:0.7424  
+ Max.   :626.07   Max.   :1.0816  
+
+Observed distance:
+        euclidean: 285.5954 (p = 0.55345)
+        riemannian: 0.8811 (p = 0.01698)
+
+Analysis 4: Classification using Tangent-Space Projections of Covariance matrices
+Confusion Matrix and Statistics
+
+          Reference
+Prediction  1  3
+         1 96 61
+         3 54 89
+                                        
+               Accuracy : 0.6167        
+                 95% CI : (0.559, 0.672)
+    No Information Rate : 0.5           
+    P-Value [Acc > NIR] : 3.161e-05     
+                                        
+                  Kappa : 0.2333        
+                                        
+ Mcnemar's Test P-Value : 0.5758        
+                                        
+            Sensitivity : 0.6400        
+            Specificity : 0.5933        
+         Pos Pred Value : 0.6115        
+         Neg Pred Value : 0.6224        
+             Prevalence : 0.5000        
+         Detection Rate : 0.3200        
+   Detection Prevalence : 0.5233        
+      Balanced Accuracy : 0.6167        
+                                        
+       'Positive' Class : 1

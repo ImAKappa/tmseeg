@@ -21,16 +21,16 @@ suppressWarnings(
 # Load data
 filepath <- parse.args()
 eeg <- readRDS(filepath)
-cat("Loaded TMS-EEG dataset with fields:", paste(names(eeg), collapse = ", "), "\n")
+cat("Loaded TMS-EEG dataset with fields:", paste(names(eeg), collapse = ", "), "\n\n")
 
-# = Analyses
+# Analyses
 analysis.1.polynomial.fitting(eeg)
 cat("\n")
 
-# analysis_2_estimating_covariance(eeg)
-# cat("\n")
+analysis.2.estimating.covariance(eeg)
+cat("\n")
 
-# analysis_3_cov_diff_perm_test(eeg)
-# cat("\n")
+analysis.3.cov.diff.perm.test(eeg)
+cat("\n")
 
-# analysis_4_classification_with_covariance(eeg)
+analysis.4.classification.with.covariance(eeg)
