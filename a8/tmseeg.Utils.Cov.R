@@ -4,7 +4,6 @@
 #   Utilities for working with covariance matrices
 
 library("corpcor")
-library("CovTools")
 library("Riemann")
 
 trial.cov <- function(eeg.array) {

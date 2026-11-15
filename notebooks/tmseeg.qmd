@@ -1,11 +1,53 @@
 ---
-title: "Assignment 8 - TMS-EEG"
-format: html
+title: "MSC1090 Assignment 8"
+format: 
+    pdf:
+        include-in-header:
+        - text: |
+            \addtokomafont{disposition}{\rmfamily}
+bibliography: references.bib
+appendix-style: none
+date: 2026-11-15
+author:
+  - name: Alex Kappen
+    email: alex.kappen@mail.utoronto.ca
+    affiliation: 
+      - name: University of Toronto
+        city: Toronto
+        state: Ontario
 ---
 
+## Introduction
 
+Transcranial Magnetic Stimulation (TMS) is a safe, FDA-approved brain stimulation treatment for psychiatric illnesses like treatment-resistant depression and obsessive-compulsive disorder [@ontario_health_repetitive_2021]. However, current protocols are standardized rather than personalized, largely because clinicians do not yet know how to dynamically adjust pulse shape, intensity, location, and timing across a typical 15-minute treatment session.
 
-```{r}
+Personalizing TMS requires decoding real-time "brain states"—distinct patterns of neural activity measured via electroencephalography (EEG) that range from psychiatric symptoms (e.g., anxiety, rumination) to benign motor states (e.g., a relaxed or contracted arm). Combining TMS with EEG reveals these states by capturing brain excitability: for instance, stimulating the motor cortex (M1) triggers a finger twitch and produces specific EEG voltage deflections called TMS-Evoked Potentials (TEPs) [@metsomaa_causal_2021]. Because TEP features can help decode underlying brain states, this report demonstrates methods for analyzing TEPs using a TMS-EEG dataset comparing "relaxed hand" and "contracted hand" states [@oostenveld_fieldtrip_2011].
 
-```
+![Mean TMS-Evoked Potentials (TEPs) for 150 trials of each brain state, "relaxed hand" and "contracted hand". 61 EEG channels are depicted. Green-yellow signals are closer to the front of head, purple closer to the back of the head. Examples shown were preprocessed to remove artifacts and improve signal quality.](./figures/avg_tep_by_class.png){#fig-tep width=60%}
 
+## Methods
+
+**1. Polynomial Fit for TEPs** - I fit several high-order polynomials to one channel from each class of TEPs to model the dynamics of the TEP. Models were compared using the Akaike Information Criterion (AIC).
+
+**2. Estimation of sample mean covariance matrix** - I estimated the mean covariance matrix for each class, and computed the difference between classes. Covariance matrices typically do not have Euclidean geometry, rather Riemannian geometry. I compared the use of Euclidean and Riemannian geometric methods for estimating the mean and difference between the two class means.
+
+**3. Permutation test of sample mean covariance matrices** - I performed a permutation test to test the hypothesis that there was no difference in the mean covariance matrix between classes. I repeated the test using a Euclidean distance metric and a Riemannian distance metric.
+
+**4. Classification using covariance matrix features** - I used features derived from the covariance matrices and the known class labels to train a Support Vector Machine to classify TEPs.
+
+## Implementation
+
+Computations were implemented in R. Machine learning packages included `caret` and covariance calculation packages included `corpcor` and `Riemann`.
+
+## Results
+
+High-order polynomials (26 for 'relaxed hand' class, 25 for 'contracted hand' class) fit the TEPs best according the AIC metric.
+The permutation test showed that the mean covariance of each class failed to reject the null hypothesis using a Euclidean metric (empirical _p = 0.553_) but rejected the null hypothesis using the Riemannian metric (empirical _p = 0.016_). SVM classification accuracy using Riemannian features was 61.7%.
+
+## Discussion
+
+R was more appropriate for analyzing this data compared to Excel, SPSS, STATA, and other GUI-based tools, particularly due to the plethora of libraries available to accomplish niche analyses (furthermore, Riemannian covariance matrix calculations would be extremely tedious, if not impossible to compute quickly, in Excel).
+
+However, I found it was more difficult to work with EEG data in R compared to languages which I use in my lab (MATLAB and Python). In those languages, the EEG-specific libraries (such as `FieldTrip` and `MNE`) are more robust and user-friendly for signal-processing.
+
+## References
