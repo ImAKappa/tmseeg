@@ -78,7 +78,7 @@ analysis_2_estimating_covariance <- function(eeg) {
 
 library(future.apply)
 
-analysis_3_cov_diff_perm_test <- function(eeg, nperm = 1000, seed = 42) {
+analysis_3_cov_diff_perm_test <- function(eeg, nperm = 1000) {
   cat("== Analysis 3: Permutation test for group differences in covariance ===\n")
 
   # Pre-compute covariance matrices to improve performance

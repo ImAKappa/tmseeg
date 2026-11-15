@@ -20,3 +20,6 @@ cat("\n")
 analysis_2_estimating_covariance(eeg)
 cat("\n")
 
+analysis_3_cov_diff_perm_test(eeg)
+
+
