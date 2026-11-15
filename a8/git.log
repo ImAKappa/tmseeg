@@ -1,0 +1,143 @@
+commit bc069d242140865569792601f950cb081bfca30c
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 15 04:57:45 2026 -0500
+
+    Move plotting function to main script
+
+commit 0d161dc9a2cd5bc374f53acb3aee37750957968d
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 15 03:02:07 2026 -0500
+
+    Update variable names for consistency, add defensive checks for argument validation, save a copy of ouput of script
+
+commit 38f65b852a5856700ecc190fd517d1fbd127d21e
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 15 02:13:00 2026 -0500
+
+    Updata analysis 1 to include comparison of TEP polynomial for each condition
+
+commit cac6e5ceb75f93ecfa4a5f4a4091db89a11bdf65
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 15 01:41:25 2026 -0500
+
+    Reorganize functions, files to be easier to read
+
+commit 4c2cb33a54fb111893910ed0d285ec25381d9308
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 15 01:22:12 2026 -0500
+
+    Complete analysis 4, classification using tangent space features of covariance matrices
+
+commit 8efa1ed4d011d48602a2ed72b08d1195a95f8d4b
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sat Nov 14 23:45:56 2026 -0500
+
+    Remove single-thread seed from analysis 3 because of parallel seed used in future_replicate
+
+commit 0d4b6fb9848a3de765716e61d35d7808424b2733
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sat Nov 14 23:42:10 2026 -0500
+
+    Complete analysis 3, refactor covariance calculations, install a few libraries for covariance metrics and parallelization
+
+commit dbdf92ed01c39fcda65c5b6381d2f6b8820067e1
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sat Nov 14 13:13:06 2026 -0500
+
+    Split covariance analysis into two separate functions, one for estimating the covariance, one for performing the hypothesis test
+
+commit ef95847bd71531511c61f8a51f02479b4b42ec7c
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sat Nov 14 11:21:35 2026 -0500
+
+    Move preprocessing to separate file; cache preprocessed data as RDS file to speed up script execution and reduce the amount of irrelevant code for the TA to parse through
+
+commit 04024265038542e2a7af6534d3748168d07b61f0
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 23:49:37 2026 -0500
+
+    Remove unnecessary files
+
+commit 8ec5219a070ad7ba60cb7394a7dda36a92125bbe
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 23:33:17 2026 -0500
+
+    Complete analysis 1
+
+commit 893598f405735502031dbd61db06f73b7b7cdb13
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 23:07:45 2026 -0500
+
+    Update trials
+
+commit b7e429cde28633848855203326dd2a1b792dcf2d
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 22:28:27 2026 -0500
+
+    Add low pass filtering, refactor visualization plots, start reworking separate analyses
+
+commit 5b1f0c94d6dcedf70914caf64602f6ebffdd50ce
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 20:40:13 2026 -0500
+
+    Refactor utilities into different files
+
+commit cf0788c31f58fa3a035f8b042caa17bbef9800da
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 19:53:13 2026 -0500
+
+    Visualize raw data before preprocessing; add baseline correction
+
+commit f49b8c1464f9875534cc0967e9511853e3dfdca8
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 19:39:11 2026 -0500
+
+    Fix inequality bug with time window slice
+
+commit 2871e8c7bf1f7ff402542df2f308cf5016a8e3de
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Thu Nov 12 00:27:28 2026 -0500
+
+    Add TODOs for preprocessing
+
+commit c0dbda410b29f113e603dde27e027d920d219cf1
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Wed Nov 11 01:30:27 2026 -0500
+
+    Update class mean plots
+
+commit a5e92e153fff2cf7b29cb8ff7ccf532b714d5f74
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Wed Nov 11 01:20:40 2026 -0500
+
+    Add TODOs; update plots of single trials and mean trials
+
+commit 178eaf0ca568d0436145d4a8b8656eaac4d59822
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Wed Nov 11 01:11:05 2026 -0500
+
+    Add downsample; fix bugs in trial filtering
+
+commit 860f2a7321222cfc7edd3c6d5fc14ccc52ba42a1
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Tue Nov 10 22:28:54 2026 -0500
+
+    Update field name in R list from 'trial' to 'data'
+
+commit a5de1ae313fb4bcb1fb200fa0c6190bfb09e74f6
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Tue Nov 10 22:26:28 2026 -0500
+
+    Update MATLAB preprocessing script, Add plotting to analysis script
+
+commit 0189b5e4b908308acbd8506eb43f6a9a4ef38656
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 8 23:45:41 2026 -0500
+
+    Update HDF5 loading functions, validation for tmseeg data structure, and functions for filtering. Update MATLAB preprocessing script for tms-eeg data to work in R
+
+commit 8225a9e0c2f10e00e4e1fa5260075879874d4d53
+Author: Alex Kappen <imaninconsp1cuouskappa@gmail.com>
+Date:   Sun Nov 8 21:48:56 2026 -0500
+
+    Initial commit
