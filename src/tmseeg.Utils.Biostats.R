@@ -4,13 +4,16 @@
 #   Utilities for the four analyses for the assignment
 
 analysis_1_polynomial_fitting <- function(eeg) {
-  cat("Analysis 1 [Polynomial fitting]: Finding polynomial approximations to TEP\n")
+  cat("=== Analysis 1: Polynomial approximations to TEP ===\n")
 
   # Focus only on TMS-Evoked Potential (the brain response to the single magnetic pulse)
   eeg <- filter_time(eeg, c(0.025, 0.250))
 
   # Compute class means
   class_means <- mean_trials_by_class(eeg)
+
+  # In EEG analysis, its common for researchers to focus on one or a few channels of interest
+  # Although, I think mutlivarate approaches (shown in later analysis functions) are usually more appropriate
 
   # Select a channel of interest (coi)
   coi <- 17
@@ -22,11 +25,8 @@ analysis_1_polynomial_fitting <- function(eeg) {
   time <- class_means$time
   df <- data.frame(time, coi_data)
 
-  # For plotting
-  # plot(df$time, df$coi_data)
-
   # Fit a nth-degree polymials to the data
-  # NOTE: For this specific example, any order higher than 27 will cause an error,
+  # NOTE: For this specific channel, any order higher than 27 will cause an error,
   #    and I'm not entirely sure I understand why. I get this error:
   #    
   #     Error in `stats::poly()`:
@@ -41,6 +41,10 @@ analysis_1_polynomial_fitting <- function(eeg) {
   print(df_results)
 
   # For plotting
+  # plot(df$time, df$coi_data)
+
+
+  # For plotting
   # for (mi in 1:length(models)) {
   #   pi <- predict(models[[mi]], data.frame(time = time))
   #   lines(time, pi, lwd = 2, col = mi)
@@ -49,33 +53,94 @@ analysis_1_polynomial_fitting <- function(eeg) {
   best_order <- df_results$order[which.min(df_results$aic)]
   cat("The best-fitting order is a ", best_order, "-degree polynomial\n", sep = "")
   # NOTE: After running this a few times, with a few different channels,
-  #    I find it interesting that even such a flexible polynomial doesn't quite fit the EEG signal well
+  #    I find it interesting that even such a flexible polynomial doesn't quite fit the TEP well
   #    Also, the AIC decreases monotically with polynomial order, which is also interesting
 }
 
 analysis_2_estimating_covariance <- function(eeg) {
-  cat("Analysis 2 []: Estimating the covariance")
-}
+  cat("=== Analysis 2: Estimating the covariance ===\n")
 
-analysis_2_cov_diff_test <- function(eeg) {
-  cat("Analysis 2 [Hypothesis testing]: Are the covariance matrices the same between the Relax and Contract conditions?\n")
-
+  # Compute covariance matrices for trials of each condition
   classes <- list(relax = 1, contract = 3)
+  relax <- trial_cov(filter_trialinfo(eeg, classes$relax)$data)
+  contract <- trial_cov(filter_trialinfo(eeg, classes$contract)$data)
 
-  # Compute covariance matrices
-  covs_relaxed <- cov_by_trial(filter_trialinfo(eeg, classes$relax))
-  covs_contract <- cov_by_trial(filter_trialinfo(eeg, classes$contract))
-
-  method <- "log_euclidean"
-  mean_relaxed <- riem.mean(wrap.spd(covs_relaxed), geometry = method)
-  mean_contract <- riem.mean(wrap.spd(covs_contract), geometry = method)
-  cov_dist <- riem.pdist(wrap.spd(list(mean_relaxed$mean, mean_contract$mean)))
-  print(cov_dist)
-
-  # Perform permutation test to assess if the covariance of each class comes from the null distribution
+  cat("Observed difference of mean sample covariance between 'relax' vs 'contract' conditions:\n")
+  
+  # Euclidean metric
+  cat("\tEuclidean distance:", cov_dist_euclidean(relax, contract), "\n")
+  # Riemannian metric
+  geometries <- c("affine_invariant", "log_euclidean")
+  for (g in geometries) {
+    cat("\tRiemannian distance (", g, "): ", cov_dist_riemannian(relax, contract, geometry = g), "\n", sep = "")
+  }
 }
 
-analysis_3_gmfp_feature_selection <- function(eeg) {
+library(future.apply)
+
+analysis_3_cov_diff_perm_test <- function(eeg, nperm = 1000, seed = 42) {
+  cat("== Analysis 3: Permutation test for group differences in covariance ===\n")
+
+  # Pre-compute covariance matrices to improve performance
+  covs <- trial_cov(eeg$data)
+
+  # Null hypothesis: Both groups come from the same distribution
+  #    Therefore, the class labels are interchangeable
+  test_stat <- function(idx) {
+    group_A <- covs[,,idx, drop = FALSE]
+    group_B <- covs[,,-idx, drop = FALSE]
+    # Keep track of both distance metrics to compare how choice of metric affects conclusions
+    return(array(c(
+      cov_dist_euclidean(group_A, group_B), 
+      # Log-Euclidean is an approximation to the Affine Invariant geometry which is must faster to compute
+      cov_dist_riemannian(group_A, group_B, geometry = "log_euclidean"))
+    ))
+  }
+
+  # NOTE FOR TA: 
+  # I know we didn't cover parallelization in the course, but my covariance calculation functions are too slow!
+  # With a single-thread, 10-20 samples was already taking almost a minute ...
+  # I usually parallelize my code for my research, though I am more used to MATLAB and Python 
+  Sys.setenv(OMP_NUM_THREADS = 1, OPENBLAS_NUM_THREADS = 1)
+  n_cores <- max(1L, parallel::detectCores() - 1L)
+
+  cat("Generating null distribution ...")
+  plan(multisession, workers = n_cores)
+
+  null_dist <- future_replicate(nperm, {
+    perm_idx <- sample.int(length(eeg$trialseq), size = as.integer(length(eeg$trialseq) / 2), replace = FALSE)
+    test_stat(perm_idx)
+  }, future.seed = TRUE)
+
+  plan(sequential)
+  cat(" done\n")
+
+  null_dist <- data.frame(euclidean = null_dist[1,], riemannian = null_dist[2,])
+  cat("Null distribution via permutation test:\n")
+  print(summary(null_dist))
+
+  # Compute observed statistics
+  classes <- list(relax = 1, contract = 3)
+  relax <- trial_cov(filter_trialinfo(eeg, classes$relax)$data)
+  contract <- trial_cov(filter_trialinfo(eeg, classes$contract)$data)
+
+  cat("\n")
+  cat("Observed distance:\n")
+  obs_stat <- list(
+    euclidean = cov_dist_euclidean(relax, contract), 
+    riemannian = cov_dist_riemannian(relax, contract, geometry = "log_euclidean"))
+
+  # Compute p-value
+  # 4. Exact one-sided p-value (distances are strictly >= 0)
+  for (metric in c("euclidean", "riemannian")) {
+    p_value <- (sum(null_dist[metric] >= obs_stat[metric]) + 1) / (nperm + 1)
+    # I know we didn't cover `sprintf` in class, but I am familiar with it through C, MATLAB, and Python format strings.
+    #    Using `cat` alone to format the string was a bit cumbersome
+    cat(sprintf("\t%s: %.4f (p = %.5f)\n", metric, obs_stat[metric], p_value))
+  }
+}
+
+analysis_4_classification_with_covariance <- function(eeg) {
   cat("Analysis 3 [Feature selection]: Which time points are useful for differentiating Relax vs Contract\n")
 
   # Select focus of the analysis
@@ -91,10 +156,4 @@ analysis_3_gmfp_feature_selection <- function(eeg) {
 
   c(relax, contract)
 
-}
-
-analysis_4_classification <- function(eeg) {
-  cat("Analysis 4 [Classification]: \n")
-
-  # Based on the feature selection analysis
 }

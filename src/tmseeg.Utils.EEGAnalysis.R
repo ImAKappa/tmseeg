@@ -35,42 +35,49 @@ gmfp <- function(eeg) {
   return(result)
 }
 
+# === COVARIANCE ===
+
 library("corpcor")
 library("CovTools")
 library("Riemann")
 
-cov_by_trial <- function(eeg) {
-  n_trials <- dim(eeg$data)[3]
-  cov_list <- vector("list", n_trials)
-
-  for (i in 1:n_trials) {
-    # Reshapeing
-    trial_i <- eeg$data[,,i]
-    trial_i <- t(trial_i)
-
-    # De-meaning
-    trial_i <- scale(trial_i, center = TRUE, scale = FALSE)
-
-    # Shrink
-    cov_mat <- corpcor::cov.shrink(trial_i, verbose = FALSE)
-    cov_list[[i]] <- as.matrix(cov_mat)
-  }
-  return(simplify2array(cov_list))
+#' Computes covariance matrix for each trial
+trial_cov <- function(eeg_array) {
+  n_chans <- dim(eeg_array)[1]
+  n_trials <- dim(eeg_array)[3]
+  cov_flat <- apply(eeg_array, 3, function(trial_mat) {
+    # Shrinking is a form of regularization (reduces variance in covariance estimate)
+    as.matrix(corpcor::cov.shrink(t(trial_mat), verbose = FALSE))
+  })
+  cov_3d <- array(cov_flat, dim = c(n_chans, n_chans, n_trials))
+  return(cov_3d)
 }
 
-riemann_perm_test <- function(covs_A, covs_B, nperm = 1000, seed = 42) {
-  set.seed(seed)
+mean_cov_euclidean <- function(covs) {
+  n_chans <- dim(covs)[1]
+  n_trials <- dim(covs)[3]
+  cov_flat <- matrix(covs, nrow = n_chans * n_chans, ncol = n_trials)
+  mean_cov <- matrix(rowMeans(cov_flat), nrow = n_chans, ncol = n_chans)
+  return(mean_cov)
+}
 
-  n1 <- dim(covs_A)[3]
-  n2 <- dim(covs_B)[3]
-  all_covs <- c(covs_A, covs_B)
-  total_trials <- n1 + n2
+cov_dist_euclidean <- function(covs_A, covs_B) {
+  return(norm(mean_cov_euclidean(covs_A) - mean_cov_euclidean(covs_B), type = "F"))
+}
 
-  # Observed mean and distance
-  # We calculate these with a Riemannian formula instead of Euclidean formulas
-  #   because the geometry of covariance matrices is actually not quite flat!
-  mean_A <- CovTools::CovMean(covs_A, method = "LERM")
-  mean_B <- CovTools::CovMean(covs_B, method = "LERM")
+mean_cov_riemannian <- function(covs, geometry = "affine_invariant") {
+  cov_riemannian <- wrap.spd(covs)
+  mean_cov <- riem.mean(cov_riemannian, geometry = geometry)$mean
+  return(mean_cov)
+}
 
-  mean_A <- riem.mean(covs_A, method)
+cov_dist_riemannian <- function(covs_A, covs_B, geometry = "affine_invariant") {
+  means <- list(
+    mean_cov_riemannian(covs_A, geometry = geometry),
+    mean_cov_riemannian(covs_B, geometry = geometry)
+  )
+  dist_mat <- riem.pdist(wrap.spd(means), geometry = geometry)
+  # The resulting distance matrix is a symmetric 2 x 2 matrix with zeros along the diagonal
+  dist <- dist_mat[1, 2]
+  return(dist)
 }

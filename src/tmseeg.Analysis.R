@@ -15,4 +15,8 @@ cat("Loaded TMS-EEG dataset with fields:", paste(names(eeg), collapse = ", "), "
 
 # = Analyses
 analysis_1_polynomial_fitting(eeg)
+cat("\n")
+
+analysis_2_estimating_covariance(eeg)
+cat("\n")
 
