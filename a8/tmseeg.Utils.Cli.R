@@ -3,7 +3,7 @@
 # Description: 
 #   Utilities for CLI for tmseeg.Analysis.R
 
-parse_args <- function() {
+parse.args <- function() {
   help <- "Usage: Rscript tmseeg.Analysis.R [RDS FILE]"
 
   args <- commandArgs(trailingOnly = TRUE)
