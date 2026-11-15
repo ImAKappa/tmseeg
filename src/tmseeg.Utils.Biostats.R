@@ -130,30 +130,52 @@ analysis_3_cov_diff_perm_test <- function(eeg, nperm = 1000) {
     euclidean = cov_dist_euclidean(relax, contract), 
     riemannian = cov_dist_riemannian(relax, contract, geometry = "log_euclidean"))
 
-  # Compute p-value
-  # 4. Exact one-sided p-value (distances are strictly >= 0)
+  # Compute p-value (distances have a lower bound at 0, so I used a one-sided test)
   for (metric in c("euclidean", "riemannian")) {
     p_value <- (sum(null_dist[metric] >= obs_stat[metric]) + 1) / (nperm + 1)
-    # I know we didn't cover `sprintf` in class, but I am familiar with it through C, MATLAB, and Python format strings.
+    # NOTE FOR TA: I know we didn't cover `sprintf` in class, but I am familiar with it through C, MATLAB, and Python format strings.
     #    Using `cat` alone to format the string was a bit cumbersome
     cat(sprintf("\t%s: %.4f (p = %.5f)\n", metric, obs_stat[metric], p_value))
   }
 }
 
+library(caret)
+library(recipes)
+
 analysis_4_classification_with_covariance <- function(eeg) {
-  cat("Analysis 3 [Feature selection]: Which time points are useful for differentiating Relax vs Contract\n")
+  cat("Analysis 4: Classification using Tangent-Space Projections of Covariance matrices\n")
 
-  # Select focus of the analysis
-  coi <- 17
+  X <- trial_cov(eeg$data)
+  y <- factor(eeg$trialinfo)
 
-  # Compute means
-  classes <- list(relax = 1, contract = 3)
-  class_means <- trial_means_by_class(eeg)
+  # Define resamples
+  folds <- createFolds(y, k = 10, list = TRUE, returnTrain = FALSE)
 
-  # Compute GMFP
-  relax <- gmfp(filter_trialinfo(class_means, classes$relax))
-  contract <- gmfp(filter_trialinfo(class_means, classes$contract))
+  oof_preds <- factor(rep(NA, length(y)), levels = levels(y))
 
-  c(relax, contract)
+  fit_ctrl <- trainControl(method = "none")
 
+  for (i in seq_along(folds)) {
+    test_idx <- folds[[i]]
+
+    X_train <- X[, , -test_idx, drop = FALSE]
+    X_test <- X[, , test_idx, drop = FALSE]
+
+    y_train <- y[-test_idx]
+
+    ref_mean <- mean_cov_riemannian(X_train, geometry = "log_euclidean")
+    X_train <- map_cov_to_tangent_space(X_train, ref_mean)
+    X_test <- map_cov_to_tangent_space(X_test, ref_mean)
+
+    # To keep things simple, I won't search for the optimal hyperparameter, but just demonstrate how to feed covariance matrices features into an SVM 
+    svm_fit <- train(
+      x = X_train, y = y_train, method = "svmLinear", trControl = fit_ctrl,
+      tuneGrid = data.frame(C = 1)
+    )
+
+    oof_preds[test_idx] <- predict(svm_fit, newdata = X_test)
+  }
+
+  conf_mat <- confusionMatrix(oof_preds, y)
+  print(conf_mat)
 }
