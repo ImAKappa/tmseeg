@@ -1,14 +1,13 @@
 # Name: Alex Kappen
 # SciNet username: tmp_akappen
 # Description: 
-#   Classifies hand contraction vs relaxation from Transcranial Magnetic Stimulation (TMS)-Evoked Electroencephalography (EEG) data
-#   TMS = Magnetic brain stimulation treatment
-#   EEG = recording of voltage fluctuations on the scalp from brain and muscle electrical activity
+#   Main driver script fr plotting TMS-EEG data
 #   
 #   The data comes from this tutorial https://www.fieldtriptoolbox.org/tutorial/tms/tms-eeg/
 #      Specifically: https://download.fieldtriptoolbox.org/tutorial/tms/sp/data_tms_segmented.mat
 #      However, I preprocessed that data in MATLAB first to produce a more R-friendly file 
 
+source("plottingTools.R")
 
 parse.args <- function() {
   help <- "Usage: Rscript generatePlots.R [DATA FILE PATH] [PLOT INDEX]\n"
@@ -27,8 +26,15 @@ parse.args <- function() {
     cat(help)
     quit()
   }
+  return(list(data=data, plot.idx=plot.idx))
 }
 
 args <- parse.args()
 
-# TODO: Check if file exists? Or just crash anyways
+eeg <- load.data(args$data)
+
+if (args$plot.idx == "plot1") {
+  plot.avg.tep.by.class(eeg)
+} else if (args$plot.idx == "plot2") {
+  plot.mean.cov.matrice.by.class(eeg)
+}
