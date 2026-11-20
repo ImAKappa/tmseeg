@@ -7,7 +7,7 @@
 library("corpcor")
 library("Riemann")
 
-trial.cov <- function(eeg.array) {
+cov.from.trials <- function(eeg.array) {
   stopifnot(
     "Expected numeric array" = is.numeric(eeg.array),
     "Epected 3D input" = length(dim(eeg.array)) == 3
@@ -26,7 +26,7 @@ trial.cov <- function(eeg.array) {
   return(cov.3d)
 }
 
-mean.cov.euclidean <- function(covs) {
+cov.mean.euclidean <- function(covs) {
   stopifnot(
     "Expected numeric array" = is.numeric(covs),
     "Epected 3D input" = length(dim(covs)) == 3
@@ -51,10 +51,10 @@ cov.dist.euclidean <- function(covs.A, covs.B) {
 
   # Compute Euclidean (a.k.a Frobenius norm) of the difference between two matrices
   # While subtraction is not commutative, the norm is commutative (||A - B|| == ||B - A||)
-  return(norm(mean.cov.euclidean(covs.A) - mean.cov.euclidean(covs.B), type = "F"))
+  return(norm(cov.mean.euclidean(covs.A) - cov.mean.euclidean(covs.B), type = "F"))
 }
 
-mean.cov.riemannian <- function(covs, geometry = "affine.invariant") {
+cov.mean.riemannian <- function(covs, geometry = "affine_invariant") {
   stopifnot(
     "Expected numeric array" = is.numeric(covs),
     "Epected 3D input" = length(dim(covs)) == 3
@@ -69,7 +69,7 @@ mean.cov.riemannian <- function(covs, geometry = "affine.invariant") {
   return(mean.cov)
 }
 
-cov.dist.riemannian <- function(covs.A, covs.B, geometry = "affine.invariant") {
+cov.dist.riemannian <- function(covs.A, covs.B, geometry = "affine_invariant") {
   stopifnot(
     "Expected numeric array" = is.numeric(covs.A) & is.numeric(covs.B),
     "Epected 3D input" = length(dim(covs.A)) == 3 & length(dim(covs.B)) == 3,
@@ -82,8 +82,8 @@ cov.dist.riemannian <- function(covs.A, covs.B, geometry = "affine.invariant") {
   # The geometry is affine invariant, although 
   #
   means <- list(
-    mean.cov.riemannian(covs.A, geometry = geometry),
-    mean.cov.riemannian(covs.B, geometry = geometry)
+    cov.mean.riemannian(covs.A, geometry = geometry),
+    cov.mean.riemannian(covs.B, geometry = geometry)
   )
   dist.mat <- riem.pdist(wrap.spd(means), geometry = geometry)
   # The resulting distance matrix is a symmetric 2x2 matrix with zeros along the diagonal
@@ -92,7 +92,7 @@ cov.dist.riemannian <- function(covs.A, covs.B, geometry = "affine.invariant") {
   return(dist)
 }
 
-map.cov.to.tangent.space <- function(covs, ref.mean) {
+cov.to.tangent.space <- function(covs, ref.mean) {
   stopifnot(
     "Expected numeric array" = is.numeric(covs) & is.numeric(ref.mean),
     "Epected 3D input for covs" = length(dim(covs)) == 3,

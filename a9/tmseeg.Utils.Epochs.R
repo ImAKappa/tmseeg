@@ -63,8 +63,7 @@ slice.trialseq <- function(eeg, i) {
 
 slice.trialinfo <- function(eeg, info) {
   stopifnot(
-    "Expected valid eeg data structure" = is.valid.eeg(eeg),
-    "Expected info to be numeric" = is.numeric(info)
+    "Expected valid eeg data structure" = is.valid.eeg(eeg)
   )
 
   # Slice data
